@@ -12,6 +12,7 @@ authors = [
 ]
 license = "MIT"
 dependencies = [
+    "bs4",
     "httpx",
     "python-dotenv"
 ]
