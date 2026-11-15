@@ -1,5 +1,6 @@
 import sqlite3
 
+import httpx
 import pytest
 
 
@@ -17,3 +18,19 @@ def connection():
     yield connection
 
     connection.close()
+
+
+@pytest.fixture
+def mock_http(monkeypatch):
+    def mock(module, handler):
+        original_client = httpx.AsyncClient
+
+        def create_client(**kwargs):
+            return original_client(
+                transport=httpx.MockTransport(handler),
+                **kwargs,
+            )
+
+        monkeypatch.setattr(module.httpx, "AsyncClient", create_client)
+
+    return mock
