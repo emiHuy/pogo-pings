@@ -1,23 +1,11 @@
-import sqlite3
+from unittest.mock import AsyncMock, MagicMock
 
 import httpx
 import pytest
 
-
-@pytest.fixture
-def connection():
-    connection = sqlite3.connect(":memory:")
-
-    connection.execute("""
-        CREATE TABLE seen_codes (
-            code TEXT PRIMARY KEY,
-            first_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    yield connection
-
-    connection.close()
+from pogo_pings.db.connection import get_connection
+from pogo_pings.db.repositories.codes import CodeRepository
+from pogo_pings.services.deduplicator import Deduplicator
 
 
 @pytest.fixture
@@ -34,3 +22,33 @@ def mock_http(monkeypatch):
         monkeypatch.setattr(module.httpx, "AsyncClient", create_client)
 
     return mock
+
+
+@pytest.fixture
+def repository(tmp_path):
+    db_path = str(tmp_path / "test.db")
+
+    with get_connection(db_path) as conn:
+        conn.execute("""
+            CREATE TABLE seen_codes (
+                code TEXT PRIMARY KEY,
+                first_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+    return CodeRepository(db_path)
+
+
+@pytest.fixture
+def mock_repository():
+    return MagicMock(spec=CodeRepository)
+
+
+@pytest.fixture
+def notifier():
+    return MagicMock(send=AsyncMock())
+
+
+@pytest.fixture
+def deduplicator(mock_repository, notifier):
+    return Deduplicator(mock_repository, notifier)
