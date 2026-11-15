@@ -9,7 +9,6 @@ class PromoCode:
 
 
 class BaseSource(ABC):
-
     @abstractmethod
     async def fetch_codes(self) -> list[PromoCode]:
         """Fetch and return raw promo code candidates."""
