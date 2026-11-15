@@ -9,5 +9,9 @@ def get_connection(db_path: str):
 
     try:
         yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
     finally:
         connection.close()
