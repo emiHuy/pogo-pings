@@ -1,5 +1,3 @@
-import sqlite3
-
 from pogo_pings.db.connection import get_connection
 
 
