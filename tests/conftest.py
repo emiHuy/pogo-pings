@@ -26,6 +26,20 @@ def mock_http(monkeypatch):
 
 
 @pytest.fixture
+def mock_sleep(monkeypatch):
+    delays = []
+
+    async def fake_sleep(delay):
+        delays.append(delay)
+
+    monkeypatch.setattr(
+        "pogo_pings.notifications.discord.asyncio.sleep",
+        fake_sleep,
+    )
+    return delays
+
+
+@pytest.fixture
 def promo_code():
     return PromoCode(
         code="EXAMPLE-CODE",
