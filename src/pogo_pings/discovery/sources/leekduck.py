@@ -6,6 +6,7 @@ from .base import BaseSource, PromoCode
 
 class LeekDuckScraper(BaseSource):
     URL = "https://leekduck.com/promo-codes/"
+    SOURCE = "leekduck.com"
 
     async def fetch_codes(self) -> list[PromoCode]:
         codes = []
@@ -32,6 +33,6 @@ class LeekDuckScraper(BaseSource):
                 )
             ]
 
-            codes.append(PromoCode(code=code, rewards=rewards))
+            codes.append(PromoCode(code=code, rewards=rewards, source=self.SOURCE))
 
         return codes
