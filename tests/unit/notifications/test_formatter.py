@@ -5,6 +5,8 @@ from pogo_pings.notifications.formatter import (
     EMBED_COLOR,
     EMBED_TITLE,
     PROMO_CODE_FIELD,
+    REDEMPTION_LINK_FIELD,
+    REDEMPTION_URL,
     REWARDS_FIELD,
     create_promo_embed,
     create_redemption_url,
@@ -49,7 +51,11 @@ def test_create_promo_embed():
             "value": "• Poké Balls\n• Stardust",
             "inline": True,
         },
+        {
+            "name": REDEMPTION_LINK_FIELD,
+            "value": f"{REDEMPTION_URL}?passcode=EXAMPLE-123",
+            "inline": False,
+        },
     ]
 
-    assert "passcode=EXAMPLE-123" in embed["description"]
     assert embed["footer"]["text"] == "Source: Example Source"
