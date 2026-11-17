@@ -5,6 +5,7 @@ import pytest
 
 from pogo_pings.db.connection import get_connection
 from pogo_pings.db.repositories.codes import CodeRepository
+from pogo_pings.discovery.sources.base import PromoCode
 from pogo_pings.services.deduplicator import Deduplicator
 
 
@@ -25,6 +26,15 @@ def mock_http(monkeypatch):
 
 
 @pytest.fixture
+def promo_code():
+    return PromoCode(
+        code="EXAMPLE-CODE",
+        rewards=["Example reward"],
+        source="example.com",
+    )
+
+
+@pytest.fixture
 def repository(tmp_path):
     db_path = str(tmp_path / "test.db")
 
@@ -32,7 +42,9 @@ def repository(tmp_path):
         conn.execute("""
             CREATE TABLE seen_codes (
                 code TEXT PRIMARY KEY,
-                first_seen_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                rewards TEXT NOT NULL,
+                source TEXT NOT NULL,
+                notified_at TEXT
             )
         """)
 

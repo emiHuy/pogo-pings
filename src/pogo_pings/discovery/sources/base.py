@@ -6,6 +6,7 @@ from dataclasses import dataclass
 class PromoCode:
     code: str
     rewards: list[str]
+    source: str
 
 
 class BaseSource(ABC):
