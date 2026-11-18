@@ -7,6 +7,7 @@ from pogo_pings.db.connection import get_connection
 from pogo_pings.db.repositories.codes import CodeRepository
 from pogo_pings.discovery.sources.base import PromoCode
 from pogo_pings.services.deduplicator import Deduplicator
+from pogo_pings.services.polling import PollingService
 
 
 @pytest.fixture
@@ -78,3 +79,26 @@ def notifier():
 @pytest.fixture
 def deduplicator(mock_repository, notifier):
     return Deduplicator(mock_repository, notifier)
+
+
+@pytest.fixture
+def mock_deduplicator():
+    deduplicator = AsyncMock()
+    deduplicator.process_codes = AsyncMock()
+    return deduplicator
+
+
+@pytest.fixture
+def mock_discovery_engine():
+    engine = AsyncMock()
+    engine.discover_codes = AsyncMock()
+    return engine
+
+
+@pytest.fixture
+def polling_service(mock_discovery_engine, mock_deduplicator):
+    return PollingService(
+        discovery_engine=mock_discovery_engine,
+        deduplicator=mock_deduplicator,
+        poll_interval=300,
+    )
