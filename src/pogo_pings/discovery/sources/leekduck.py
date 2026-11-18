@@ -1,19 +1,17 @@
-import httpx
 from bs4 import BeautifulSoup
 
-from .base import BaseSource, PromoCode
+from .base import PromoCode, PromoCodeSource
 
 
-class LeekDuckScraper(BaseSource):
-    URL = "https://leekduck.com/promo-codes/"
+class LeekDuckSource(PromoCodeSource):
     SOURCE = "leekduck.com"
+    URL = "https://leekduck.com/promo-codes/"
 
     async def fetch_codes(self) -> list[PromoCode]:
         codes = []
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(self.URL)
-            response.raise_for_status()
+        response = await self.client.get(self.URL)
+        response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
         promo_cards = soup.select('div[class="promo-card"]')

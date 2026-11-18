@@ -3,21 +3,25 @@ import pytest
 
 import pogo_pings.notifications.discord as discord_module
 from pogo_pings.notifications.discord import DiscordNotifier
+from tests.conftest import mock_http
 
 
 @pytest.mark.asyncio
-async def test_successful_delivery(mock_http):
-    mock_http(discord_module, lambda request: httpx.Response(204))
+async def test_successful_delivery():
+    async with mock_http(lambda request: httpx.Response(204)) as client:
+        notifier = DiscordNotifier(
+            client=client,
+            webhook_url="https://discord.test/webhook",
+            max_retries=3,
+        )
 
-    notifier = DiscordNotifier("https://discord.test/webhook")
-
-    result = await notifier.send("ABC123", ["Coins"], "Test")
+        result = await notifier.send("ABC123", ["Coins"], "Test")
 
     assert result is True
 
 
 @pytest.mark.asyncio
-async def test_rate_limit_retries_delivery(mock_http, mock_sleep):
+async def test_rate_limit_retries_delivery(mock_sleep):
     attempts = 0
 
     def handler(request):
@@ -29,11 +33,14 @@ async def test_rate_limit_retries_delivery(mock_http, mock_sleep):
 
         return httpx.Response(204)
 
-    mock_http(discord_module, handler)
+    async with mock_http(handler) as client:
+        notifier = DiscordNotifier(
+            client=client,
+            webhook_url="https://discord.test/webhook",
+            max_retries=3,
+        )
 
-    notifier = DiscordNotifier("https://discord.test/webhook")
-
-    result = await notifier.send("ABC123", ["Coins"], "Test")
+        result = await notifier.send("ABC123", ["Coins"], "Test")
 
     assert result is True
     assert attempts == 2
@@ -41,22 +48,22 @@ async def test_rate_limit_retries_delivery(mock_http, mock_sleep):
 
 
 @pytest.mark.asyncio
-async def test_retries_exhausted(mock_http, mock_sleep):
-    mock_http(discord_module, lambda request: httpx.Response(500))
+async def test_retries_exhausted(mock_sleep):
+    async with mock_http(lambda request: httpx.Response(500)) as client:
+        notifier = DiscordNotifier(
+            client=client,
+            webhook_url="https://discord.test/webhook",
+            max_retries=2,
+        )
 
-    notifier = DiscordNotifier(
-        "https://discord.test/webhook",
-        max_retries=2,
-    )
-
-    result = await notifier.send("ABC123", ["Coins"], "Test")
+        result = await notifier.send("ABC123", ["Coins"], "Test")
 
     assert result is False
     assert mock_sleep == [1, 2]
 
 
 @pytest.mark.asyncio
-async def test_permanent_http_error_is_not_retried(mock_http, mock_sleep):
+async def test_permanent_http_error_is_not_retried(mock_sleep):
     attempts = 0
 
     def handler(request):
@@ -64,11 +71,14 @@ async def test_permanent_http_error_is_not_retried(mock_http, mock_sleep):
         attempts += 1
         return httpx.Response(400)
 
-    mock_http(discord_module, handler)
+    async with mock_http(handler) as client:
+        notifier = DiscordNotifier(
+            client=client,
+            webhook_url="https://discord.test/webhook",
+            max_retries=3,
+        )
 
-    notifier = DiscordNotifier("https://discord.test/webhook")
-
-    result = await notifier.send("ABC123", ["Coins"], "Test")
+        result = await notifier.send("ABC123", ["Coins"], "Test")
 
     assert result is False
     assert attempts == 1
@@ -76,7 +86,7 @@ async def test_permanent_http_error_is_not_retried(mock_http, mock_sleep):
 
 
 @pytest.mark.asyncio
-async def test_server_error_retries_delivery(mock_http, mock_sleep):
+async def test_server_error_retries_delivery(mock_sleep):
     attempts = 0
 
     def handler(request):
@@ -88,11 +98,14 @@ async def test_server_error_retries_delivery(mock_http, mock_sleep):
 
         return httpx.Response(204)
 
-    mock_http(discord_module, handler)
+    async with mock_http(handler) as client:
+        notifier = DiscordNotifier(
+            client=client,
+            webhook_url="https://discord.test/webhook",
+            max_retries=3,
+        )
 
-    notifier = DiscordNotifier("https://discord.test/webhook")
-
-    result = await notifier.send("ABC123", ["Coins"], "Test")
+        result = await notifier.send("ABC123", ["Coins"], "Test")
 
     assert result is True
     assert attempts == 2

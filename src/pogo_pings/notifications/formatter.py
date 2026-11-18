@@ -31,17 +31,17 @@ def create_promo_embed(code: str, rewards: list[str], source: str) -> dict:
         "fields": [
             {
                 "name": PROMO_CODE_FIELD,
-                "value": f"`{code}`",
+                "value": f"`{code}`\n\u200b",
                 "inline": True,
             },
             {
                 "name": REWARDS_FIELD,
-                "value": "\n".join(f"• {reward}" for reward in rewards),
+                "value": "\n".join(f"• {reward}" for reward in rewards) + "\n\u200b",
                 "inline": True,
             },
             {
                 "name": REDEMPTION_LINK_FIELD,
-                "value": create_redemption_url(code),
+                "value": create_redemption_url(code) + "\n\u200b",
                 "inline": False,
             },
         ],
