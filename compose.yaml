@@ -11,3 +11,4 @@ services:
 
 volumes:
   pogo-pings-data:
+    name: pogo-pings-data
