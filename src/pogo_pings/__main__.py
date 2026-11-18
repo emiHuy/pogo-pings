@@ -14,6 +14,8 @@ from pogo_pings.services.deduplicator import Deduplicator
 from pogo_pings.services.polling import PollingService
 
 logger = logging.getLogger(__name__)
+logging.getLogger("httpx").setLevel(logging.CRITICAL)
+logging.getLogger("httpcore").setLevel(logging.CRITICAL)
 
 
 async def main() -> None:
