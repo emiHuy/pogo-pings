@@ -22,6 +22,7 @@ def process_codes(codes: list[PromoCode]) -> list[PromoCode]:
             PromoCode(
                 code=code,
                 rewards=promo.rewards,
+                source=promo.source,
             )
         )
 
