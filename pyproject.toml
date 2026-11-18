@@ -25,5 +25,8 @@ dev = [
     "ruff"
 ]
 
+[tool.setuptools.package-data]
+pogo_pings = ["db/*.sql"]
+
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,0 +1,14 @@
+services:
+  pogo-pings:
+    image: pogo-pings:latest
+    build: .
+    container_name: pogo-pings
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - pogo-pings-data:/data
+
+volumes:
+  pogo-pings-data:
+    name: pogo-pings-data
