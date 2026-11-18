@@ -43,17 +43,17 @@ def test_create_promo_embed():
     assert embed["fields"] == [
         {
             "name": PROMO_CODE_FIELD,
-            "value": "`EXAMPLE-123`",
+            "value": "`EXAMPLE-123`\n\u200b",
             "inline": True,
         },
         {
             "name": REWARDS_FIELD,
-            "value": "• Poké Balls\n• Stardust",
+            "value": "• Poké Balls\n• Stardust\n\u200b",
             "inline": True,
         },
         {
             "name": REDEMPTION_LINK_FIELD,
-            "value": f"{REDEMPTION_URL}?passcode=EXAMPLE-123",
+            "value": f"{REDEMPTION_URL}?passcode=EXAMPLE-123\n\u200b",
             "inline": False,
         },
     ]
