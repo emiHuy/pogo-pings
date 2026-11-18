@@ -36,6 +36,10 @@ flowchart LR
 
     Dedup -->|"unseen codes"| Notifier
     Notifier -->|"alert"| Discord
+
+    style Discovery fill:none,stroke:#8b949e,stroke-dasharray: 4 4
+    style Delivery fill:none,stroke:#8b949e,stroke-dasharray: 4 4
+    style Storage fill:none,stroke:#8b949e,stroke-dasharray: 4 4
 ```
 
 ## The Poll Cycle
