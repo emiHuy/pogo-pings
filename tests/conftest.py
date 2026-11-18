@@ -10,20 +10,10 @@ from pogo_pings.services.deduplicator import Deduplicator
 from pogo_pings.services.polling import PollingService
 
 
-@pytest.fixture
-def mock_http(monkeypatch):
-    def mock(module, handler):
-        original_client = httpx.AsyncClient
-
-        def create_client(**kwargs):
-            return original_client(
-                transport=httpx.MockTransport(handler),
-                **kwargs,
-            )
-
-        monkeypatch.setattr(module.httpx, "AsyncClient", create_client)
-
-    return mock
+def mock_http(handler):
+    return httpx.AsyncClient(
+        transport=httpx.MockTransport(handler),
+    )
 
 
 @pytest.fixture

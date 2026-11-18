@@ -1,12 +1,12 @@
 import httpx
 import pytest
 
-from pogo_pings.discovery.sources import leekduck
-from pogo_pings.discovery.sources.leekduck import LeekDuckScraper
+from pogo_pings.discovery.sources.leekduck import LeekDuckSource
+from tests.conftest import mock_http
 
 
 @pytest.mark.asyncio
-async def test_fetch_codes(mock_http):
+async def test_fetch_codes():
     html = """
     <div class="promo-card">
         <div class="code-display">
@@ -20,13 +20,9 @@ async def test_fetch_codes(mock_http):
     </div>
     """
 
-    mock_http(
-        leekduck,
-        lambda request: httpx.Response(200, text=html),
-    )
-
-    scraper = LeekDuckScraper()
-    codes = await scraper.fetch_codes()
+    async with mock_http(lambda request: httpx.Response(200, text=html)) as client:
+        source = LeekDuckSource(client)
+        codes = await source.fetch_codes()
 
     assert len(codes) == 1
     assert codes[0].code == "POKEMON123"
@@ -34,7 +30,7 @@ async def test_fetch_codes(mock_http):
 
 
 @pytest.mark.asyncio
-async def test_fetch_multiple_codes(mock_http):
+async def test_fetch_multiple_codes():
     html = """
     <div class="promo-card">
         <div class="code-display">
@@ -49,13 +45,9 @@ async def test_fetch_multiple_codes(mock_http):
     </div>
     """
 
-    mock_http(
-        leekduck,
-        lambda request: httpx.Response(200, text=html),
-    )
-
-    scraper = LeekDuckScraper()
-    codes = await scraper.fetch_codes()
+    async with mock_http(lambda request: httpx.Response(200, text=html)) as client:
+        source = LeekDuckSource(client)
+        codes = await source.fetch_codes()
 
     assert len(codes) == 2
     assert codes[0].code == "CODE123"
@@ -63,7 +55,7 @@ async def test_fetch_multiple_codes(mock_http):
 
 
 @pytest.mark.asyncio
-async def test_fetch_codes_skips_missing_code(mock_http):
+async def test_fetch_codes_skips_missing_code():
     html = """
     <div class="promo-card">
         <div class="code-display"></div>
@@ -76,39 +68,29 @@ async def test_fetch_codes_skips_missing_code(mock_http):
     </div>
     """
 
-    mock_http(
-        leekduck,
-        lambda request: httpx.Response(200, text=html),
-    )
-
-    scraper = LeekDuckScraper()
-    codes = await scraper.fetch_codes()
+    async with mock_http(lambda request: httpx.Response(200, text=html)) as client:
+        source = LeekDuckSource(client)
+        codes = await source.fetch_codes()
 
     assert len(codes) == 1
     assert codes[0].code == "VALID123"
 
 
 @pytest.mark.asyncio
-async def test_fetch_codes_empty_page(mock_http):
-    mock_http(
-        leekduck,
-        lambda request: httpx.Response(200, text="<html></html>"),
-    )
-
-    scraper = LeekDuckScraper()
-    codes = await scraper.fetch_codes()
+async def test_fetch_codes_empty_page():
+    async with mock_http(
+        lambda request: httpx.Response(200, text="<html></html>")
+    ) as client:
+        source = LeekDuckSource(client)
+        codes = await source.fetch_codes()
 
     assert codes == []
 
 
 @pytest.mark.asyncio
-async def test_fetch_codes_http_error(mock_http):
-    mock_http(
-        leekduck,
-        lambda request: httpx.Response(500),
-    )
+async def test_fetch_codes_http_error():
+    async with mock_http(lambda request: httpx.Response(500)) as client:
+        source = LeekDuckSource(client)
 
-    scraper = LeekDuckScraper()
-
-    with pytest.raises(httpx.HTTPStatusError):
-        await scraper.fetch_codes()
+        with pytest.raises(httpx.HTTPStatusError):
+            await source.fetch_codes()
